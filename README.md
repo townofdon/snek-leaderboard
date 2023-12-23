@@ -4,13 +4,13 @@ Used for Snek, and maybe other games in the future.
 
 ## Setup
 
-```
+```bash
 npm i
 ```
 
 ## Usage
 
-```
+```bash
 npm start
 ```
 
@@ -31,22 +31,29 @@ npm run build
 pm2 start dist/app.js
 ```
 
+To restart server:
+
+```bash
+# note - name is probably "app" but you can check with `pm2 list`
+pm2 restart app
+```
+
 To stop server:
 
-```
+```bash
 pm2 stop all
 ```
 
 To monitor:
 
-```
+```bash
 pm2 monit
 ```
 
 
 ## Leaderboard Healthcheck
 
-```
+```bash
 # view crontab
 crontab -l
 # edit crontab
