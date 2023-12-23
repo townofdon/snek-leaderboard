@@ -22,6 +22,8 @@ TBD, for now a manual process of scp to digital ocean
 
 Using [pm2](https://www.npmjs.com/package/pm2) for prod server.
 
+Note that pm2 must be installed globally on target system.
+
 ```bash
 # make sure you build first
 npm run build
