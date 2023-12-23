@@ -42,3 +42,18 @@ To monitor:
 ```
 pm2 monit
 ```
+
+
+## Leaderboard Healthcheck
+
+```
+# view crontab
+crontab -l
+# edit crontab
+crontab -e
+```
+
+```
+# https://crontab.guru/#5_0-23_*_*_*
+5 0-23 * * * /root/snek-leaderboard/ping-leaderboard.sh
+```

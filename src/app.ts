@@ -71,6 +71,7 @@ app.get('/leaderboard', async (req, res) => {
     // .upsert({ some_column: 'someValue' })
     .select('*')
     .order('score', { ascending: false })
+    .limit(10);
 
   if (error) {
     console.log(`${error.code}: ${error.message}`);
