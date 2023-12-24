@@ -7,7 +7,7 @@ import { doubleCsrf } from "csrf-csrf";
 import { createClient } from '@supabase/supabase-js'
 import 'dotenv/config'
 
-import { CSRF_HASH_SECRET, IS_DEV, SUPABASE_SERVICE_ROLE_KEY, SUPABASE_AUTH_TOKEN, SUPABASE_PROJECT_URL } from './constants';
+import { CSRF_HASH_SECRET, IS_DEV, SUPABASE_SERVICE_ROLE_KEY, SUPABASE_PROJECT_URL } from './constants';
 import { Database } from './types'
 
 const {
@@ -48,8 +48,9 @@ app.use((req, res, next) => {
 
 // set auth header
 app.use(function (req, res, next) {
-  res.setHeader('Authorization', `Bearer: ${SUPABASE_AUTH_TOKEN}`);
+  // res.setHeader('Authorization', `Bearer: ${SUPABASE_AUTH_TOKEN}`);
   res.setHeader('Access-Control-Allow-Methods', 'POST, GET, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, x-crsf-token');
   res.setHeader('Access-Control-Allow-Origin', '*');
   next();
 });
