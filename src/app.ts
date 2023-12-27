@@ -3,6 +3,8 @@
 import express from 'express';
 import bodyParser from 'body-parser';
 import cookieParser from 'cookie-parser';
+import morgan from 'morgan';
+
 import { doubleCsrf } from "csrf-csrf";
 import { createClient } from '@supabase/supabase-js'
 import 'dotenv/config'
@@ -15,11 +17,12 @@ const {
   doubleCsrfProtection, // This is the default CSRF protection middleware.
 } = doubleCsrf({
   getSecret: () => CSRF_HASH_SECRET,
-  cookieName: "__Host-snek.x-csrf-token",
+  cookieName: IS_DEV ? "snek.x-csrf-token" : "__Host-snek.x-csrf-token",
+  // see: https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Set-Cookie
   cookieOptions: {
     sameSite: "lax",
     path: "/",
-    secure: IS_DEV ? false : true,
+    secure: true,
   },
   size: 64,
   ignoredMethods: ["GET", "HEAD", "OPTIONS"],
@@ -58,6 +61,10 @@ app.use(function (req, res, next) {
 app.use(cookieParser());
 app.use(bodyParser.json());
 
+if (IS_DEV) {
+  app.use(morgan('combined'))
+}
+
 app.get('/csrf-token', (req, res) => {
   const csrfToken = generateToken(req, res);
   // You could also pass the token into the context of a HTML response.
@@ -84,7 +91,9 @@ app.get('/leaderboard', async (req, res) => {
   res.json(data);
 });
 
-app.use(doubleCsrfProtection);
+if (!IS_DEV) {
+  app.use(doubleCsrfProtection);
+}
 
 app.post('/leaderboard', async (req, res) => {
   // TODO: check the domain to make sure it's from github or itch.io
@@ -127,5 +136,6 @@ app.post('/leaderboard', async (req, res) => {
 // }
 
 app.listen(port, () => {
-  return console.log(`Express is listening at http://localhost:${port}`);
+  console.log(`Express is listening at http://localhost:${port}`);
+  console.log(`mode=${IS_DEV ? 'development' : 'production'}`);
 });
