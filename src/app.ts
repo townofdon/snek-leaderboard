@@ -50,7 +50,7 @@ app.use((req, res, next) => {
 app.use(function (req, res, next) {
   // res.setHeader('Authorization', `Bearer: ${SUPABASE_AUTH_TOKEN}`);
   res.setHeader('Access-Control-Allow-Methods', 'POST, GET, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, x-crsf-token');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, x-csrf-token');
   res.setHeader('Access-Control-Allow-Origin', '*');
   next();
 });
