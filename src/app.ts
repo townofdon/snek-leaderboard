@@ -9,7 +9,7 @@ import { doubleCsrf } from "csrf-csrf";
 import { createClient } from '@supabase/supabase-js'
 import 'dotenv/config'
 
-import { CSRF_HASH_SECRET, IS_DEV, SUPABASE_SERVICE_ROLE_KEY, SUPABASE_PROJECT_URL } from './constants';
+import { CSRF_HASH_SECRET, IS_DEV, SUPABASE_SERVICE_ROLE_KEY, SUPABASE_PROJECT_URL, ALLOWED_DOMAINS } from './constants';
 import { Database } from './types'
 
 const {
@@ -17,10 +17,11 @@ const {
   doubleCsrfProtection, // This is the default CSRF protection middleware.
 } = doubleCsrf({
   getSecret: () => CSRF_HASH_SECRET,
-  cookieName: IS_DEV ? "snek.x-csrf-token" : "__Host-snek.x-csrf-token",
+  cookieName: IS_DEV ? "snek.x-csrf-token" : "__Secure-snek.x-csrf-token",
   // see: https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Set-Cookie
+  // see: https://developers.google.com/search/blog/2020/01/get-ready-for-new-samesitenone-secure
   cookieOptions: {
-    sameSite: "lax",
+    sameSite: "none",
     path: "/",
     secure: true,
   },
@@ -51,10 +52,16 @@ app.use((req, res, next) => {
 
 // set auth header
 app.use(function (req, res, next) {
-  // res.setHeader('Authorization', `Bearer: ${SUPABASE_AUTH_TOKEN}`);
+  const isAllowed = ALLOWED_DOMAINS.includes(req.headers.origin);
+  if (isAllowed) {
+    res.setHeader('Access-Control-Allow-Credentials', 'true');
+    res.setHeader('Access-Control-Allow-Origin', req.headers.origin);
+  } else {
+    res.status(403).send();
+    return;
+  }
   res.setHeader('Access-Control-Allow-Methods', 'POST, GET, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, x-csrf-token');
-  res.setHeader('Access-Control-Allow-Origin', '*');
   next();
 });
 
