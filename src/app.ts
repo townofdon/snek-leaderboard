@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-import express from 'express';
+import express, { RequestHandler } from 'express';
 import bodyParser from 'body-parser';
 import cookieParser from 'cookie-parser';
 import morgan from 'morgan';
@@ -24,6 +24,10 @@ const {
     sameSite: "none",
     path: "/",
     secure: true,
+    // need to enable partitioned - https://developers.google.com/privacy-sandbox/3pcd#report-issues
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore - node needs to fix this: https://github.com/expressjs/express/issues/5275
+    partitioned: true,
   },
   size: 64,
   ignoredMethods: ["GET", "HEAD", "OPTIONS"],
@@ -50,20 +54,23 @@ app.use((req, res, next) => {
   }
 })
 
-// set auth header
-app.use(function (req, res, next) {
+const setAllowAccessHeaders: RequestHandler = (req, res) => {
+  res.setHeader('Access-Control-Allow-Credentials', 'true');
+  res.setHeader('Access-Control-Allow-Origin', req.headers.origin);
+  res.setHeader('Access-Control-Allow-Methods', 'POST, GET, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, x-csrf-token');
+}
+
+const setRestrictAccessHeaders: RequestHandler = (req, res, next) => {
   const isAllowed = ALLOWED_DOMAINS.includes(req.headers.origin);
   if (isAllowed) {
-    res.setHeader('Access-Control-Allow-Credentials', 'true');
-    res.setHeader('Access-Control-Allow-Origin', req.headers.origin);
+    setAllowAccessHeaders(req, res, next);
   } else {
     res.status(403).send();
     return;
   }
-  res.setHeader('Access-Control-Allow-Methods', 'POST, GET, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, x-csrf-token');
   next();
-});
+}
 
 app.use(cookieParser());
 app.use(bodyParser.json());
@@ -72,15 +79,8 @@ if (IS_DEV) {
   app.use(morgan('combined'))
 }
 
-app.get('/csrf-token', (req, res) => {
-  const csrfToken = generateToken(req, res);
-  // You could also pass the token into the context of a HTML response.
-  res.json({ csrfToken });
-});
-
-app.get('/leaderboard', async (req, res) => {
-  // res.send('Hello Bro!');
-
+app.get('/leaderboard', async (req, res, next) => {
+  setAllowAccessHeaders(req, res, next);
   const { data, error } = await supabase
     .from('snek-leaderboard')
     // .upsert({ some_column: 'someValue' })
@@ -98,13 +98,15 @@ app.get('/leaderboard', async (req, res) => {
   res.json(data);
 });
 
-if (!IS_DEV) {
-  app.use(doubleCsrfProtection);
-}
+app.use(setRestrictAccessHeaders);
+app.get('/csrf-token', (req, res) => {
+  const csrfToken = generateToken(req, res);
+  // You could also pass the token into the context of a HTML response.
+  res.json({ csrfToken });
+});
 
+app.use(doubleCsrfProtection);
 app.post('/leaderboard', async (req, res) => {
-  // TODO: check the domain to make sure it's from github or itch.io
-
   const name = String(req.body.name);
   const score = parseInt(req.body.score, 10);
   const nameValidatePattern = /^([A-Za-z0-9_-]|\s)+$/;
@@ -113,8 +115,6 @@ app.post('/leaderboard', async (req, res) => {
     res.status(403).json({ error: { message: `name "${name}" is not valid` } });
     return;
   }
-
-  // const existingEntry = fetchExistingEntry(name);
 
   const { data, error } = await supabase
     .from('snek-leaderboard')
@@ -130,17 +130,6 @@ app.post('/leaderboard', async (req, res) => {
 
   res.json(data);
 });
-
-// async function fetchExistingEntry(name: string) {
-//   const { data, error } = await supabase
-//     .from('snek-leaderboard')
-//     .select('*')
-//     .match({ name })
-
-//   if (error) throw error.message;
-
-//   return data[0] || null;
-// }
 
 app.listen(port, () => {
   console.log(`Express is listening at http://localhost:${port}`);

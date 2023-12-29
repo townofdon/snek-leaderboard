@@ -9,6 +9,7 @@ export const CSRF_HASH_SECRET = process.env.CSRF_HASH_SECRET;
 export const ALLOWED_DOMAINS = [
   'https://townofdon.github.io',
   'https://donjuanjavier.itch.io',
+  'https://html-classic.itch.zone',
 ].concat(IS_DEV
   ? ['http://localhost:3000']
   : []
