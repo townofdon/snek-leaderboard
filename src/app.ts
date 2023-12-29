@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-import express, { RequestHandler } from 'express';
+import express, { RequestHandler, Router } from 'express';
 import bodyParser from 'body-parser';
 import cookieParser from 'cookie-parser';
 import morgan from 'morgan';
@@ -54,24 +54,25 @@ app.use((req, res, next) => {
   }
 })
 
-const setAllowAccessHeaders: RequestHandler = (req, res) => {
+const setAllowAccessHeaders: RequestHandler = (req, res, next) => {
   res.setHeader('Access-Control-Allow-Credentials', 'true');
   res.setHeader('Access-Control-Allow-Origin', req.headers.origin);
   res.setHeader('Access-Control-Allow-Methods', 'POST, GET, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, x-csrf-token');
+  next();
 }
 
 const setRestrictAccessHeaders: RequestHandler = (req, res, next) => {
   const isAllowed = ALLOWED_DOMAINS.includes(req.headers.origin);
   if (isAllowed) {
-    setAllowAccessHeaders(req, res, next);
+    return setAllowAccessHeaders(req, res, next);
   } else {
     res.status(403).send();
-    return;
   }
-  next();
 }
 
+const openRoutes = Router().use(setAllowAccessHeaders);
+const closedRoutes = Router().use(setRestrictAccessHeaders);
 app.use(cookieParser());
 app.use(bodyParser.json());
 
@@ -79,11 +80,9 @@ if (IS_DEV) {
   app.use(morgan('combined'))
 }
 
-app.get('/leaderboard', async (req, res, next) => {
-  setAllowAccessHeaders(req, res, next);
+openRoutes.get('/leaderboard', async (req, res) => {
   const { data, error } = await supabase
     .from('snek-leaderboard')
-    // .upsert({ some_column: 'someValue' })
     .select('*')
     .order('score', { ascending: false })
     .limit(10);
@@ -98,15 +97,14 @@ app.get('/leaderboard', async (req, res, next) => {
   res.json(data);
 });
 
-app.use(setRestrictAccessHeaders);
-app.get('/csrf-token', (req, res) => {
+closedRoutes.get('/csrf-token', (req, res) => {
   const csrfToken = generateToken(req, res);
   // You could also pass the token into the context of a HTML response.
   res.json({ csrfToken });
 });
 
-app.use(doubleCsrfProtection);
-app.post('/leaderboard', async (req, res) => {
+closedRoutes.use(doubleCsrfProtection);
+closedRoutes.post('/leaderboard', async (req, res) => {
   const name = String(req.body.name);
   const score = parseInt(req.body.score, 10);
   const nameValidatePattern = /^([A-Za-z0-9_-]|\s)+$/;
@@ -130,6 +128,9 @@ app.post('/leaderboard', async (req, res) => {
 
   res.json(data);
 });
+
+app.use(openRoutes);
+app.use(closedRoutes);
 
 app.listen(port, () => {
   console.log(`Express is listening at http://localhost:${port}`);
