@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <!-- social media embeds -->
+    <meta property="og:title" content="<%= ogTitle %>" />
+    <meta property="og:site_name" content="SNEK" />
+    <meta property="og:type" content="game" />
+    <meta property="og:description" content="<%= ogDescription %>" />
+    <meta property="og:url" content="<%= ogUrl %>" />
+    <meta property="og:image" content="<%= ogImageUrl %>" />
+    <meta name="twitter:title" content="<%= ogTitle %>">
+    <meta name="twitter:description" content="<%= ogDescription %>">
+    <meta name="twitter:image" content="<%= ogImageUrl %>">
+    <meta name="twitter:card" content="summary_large_image">
+
+    <meta charset="utf-8" />
+    <title><%= mapName %></title>
+
+    <style>
+      html, body {
+        background-color: rgb(26, 30, 37);
+        color: rgb(124, 135, 147);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-family: 'Courier New', Courier, monospace;
+        min-height: 100vh;
+        min-width: 100vw;
+      }
+    </style>
+  </head>
+  <body>
+    <p>redirecting...</p>
+    <script>
+      (function() {
+        const url = 'https://townofdon.github.io/snek-js/preview/?data=<%= encodedMapData %>';
+        window.location.href = url;
+      })();
+    </script>
+  </body>
+</html>

@@ -64,3 +64,16 @@ crontab -e
 # https://crontab.guru/#5_0-23_*_*_*
 5 0-23 * * * /root/snek-leaderboard/ping-leaderboard.sh
 ```
+
+
+## Map API
+
+For social sharing embeds, [ejs](https://www.npmjs.com/package/ejs) is used to render templates.
+
+[See here](https://github.com/mde/ejs/tree/main/examples/express) for an example of ejs usage for express.
+
+
+Social developer links
+- https://developers.facebook.com/docs/sharing/webmasters/images/
+- https://dev.to/shadowfaxrodeo/i-tested-every-link-preview-meta-tag-on-every-social-media-and-messaging-app-so-you-dont-have-to-it-was-super-boring-39c0
+- https://dnschecker.org/open-graph-preview-generate-metatags.php

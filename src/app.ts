@@ -4,13 +4,15 @@ import express, { RequestHandler, Router } from 'express';
 import bodyParser from 'body-parser';
 import cookieParser from 'cookie-parser';
 import morgan from 'morgan';
+import path from 'path';
 
 import { doubleCsrf } from "csrf-csrf";
-import { createClient } from '@supabase/supabase-js'
 import 'dotenv/config'
 
-import { CSRF_HASH_SECRET, IS_DEV, SUPABASE_SERVICE_ROLE_KEY, SUPABASE_PROJECT_URL, ALLOWED_DOMAINS } from './constants';
-import { Database } from './types'
+import { CSRF_HASH_SECRET, IS_DEV, ALLOWED_DOMAINS } from './constants';
+import { addLeaderboardEntry } from './endpoints/leaderboard/addLeaderboardEntry';
+import { getLeaderboard } from './endpoints/leaderboard/getLeaderboard';
+import { getMapShare } from './endpoints/map/getMapShare';
 
 const {
   generateToken, // Use this in your routes to provide a CSRF hash + token cookie and token.
@@ -36,13 +38,9 @@ const {
 
 const app = express();
 const port = 8000;
-const supabase = createClient<Database>(SUPABASE_PROJECT_URL, SUPABASE_SERVICE_ROLE_KEY, {
-  auth: {
-    autoRefreshToken: false,
-    persistSession: false,
-    detectSessionInUrl: false,
-  }
-})
+
+app.set('views', path.join(__dirname, 'views'));
+app.set('view engine', 'ejs');
 
 // error handler
 app.use((req, res, next) => {
@@ -55,10 +53,12 @@ app.use((req, res, next) => {
 })
 
 const setAllowAccessHeaders: RequestHandler = (req, res, next) => {
-  res.setHeader('Access-Control-Allow-Credentials', 'true');
-  res.setHeader('Access-Control-Allow-Origin', req.headers.origin);
-  res.setHeader('Access-Control-Allow-Methods', 'POST, GET, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, x-csrf-token');
+  if (req.headers.origin) {
+    res.setHeader('Access-Control-Allow-Credentials', 'true');
+    res.setHeader('Access-Control-Allow-Origin', req.headers.origin);
+    res.setHeader('Access-Control-Allow-Methods', 'POST, GET, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, x-csrf-token');
+  }
   next();
 }
 
@@ -80,22 +80,8 @@ if (IS_DEV) {
   app.use(morgan('combined'))
 }
 
-openRoutes.get('/leaderboard', async (req, res) => {
-  const { data, error } = await supabase
-    .from('snek-leaderboard')
-    .select('*')
-    .order('score', { ascending: false })
-    .limit(10);
-
-  if (error) {
-    console.log(`${error.code}: ${error.message}`);
-    console.log(error.details);
-    res.status(500).json({ error: { message: `${error.code}: ${error.message}` } });
-    return;
-  }
-
-  res.json(data);
-});
+openRoutes.get('/leaderboard', getLeaderboard);
+openRoutes.get('/map/share/:mapData', getMapShare)
 
 closedRoutes.get('/csrf-token', (req, res) => {
   const csrfToken = generateToken(req, res);
@@ -104,30 +90,7 @@ closedRoutes.get('/csrf-token', (req, res) => {
 });
 
 closedRoutes.use(doubleCsrfProtection);
-closedRoutes.post('/leaderboard', async (req, res) => {
-  const name = String(req.body.name);
-  const score = parseInt(req.body.score, 10);
-  const nameValidatePattern = /^([A-Za-z0-9_-]|\s)+$/;
-
-  if (!nameValidatePattern.test(name)) {
-    res.status(403).json({ error: { message: `name "${name}" is not valid` } });
-    return;
-  }
-
-  const { data, error } = await supabase
-    .from('snek-leaderboard')
-    .upsert({ name, score })
-    .select()
-
-  if (error) {
-    console.log(`${error.code}: ${error.message}`);
-    console.log(error.details);
-    res.status(403).json({ error: { message: `${error.code}: ${error.message}` } });
-    return;
-  }
-
-  res.json(data);
-});
+closedRoutes.post('/leaderboard', addLeaderboardEntry);
 
 app.use(openRoutes);
 app.use(closedRoutes);
