@@ -7,10 +7,17 @@ export const SUPABASE_AUTH_TOKEN = process.env.SUPABASE_AUTH_TOKEN;
 export const CSRF_HASH_SECRET = process.env.CSRF_HASH_SECRET;
 
 export const ALLOWED_DOMAINS = [
+  'dontownsendcreative.com',
+  'https://dontownsendcreative.com',
   'https://townofdon.github.io',
   'https://donjuanjavier.itch.io',
   'https://html-classic.itch.zone',
 ].concat(IS_DEV
-  ? ['http://localhost:3000']
+  ? [
+      'http://localhost:3000',
+      'http://localhost:8000',
+      'localhost:3000',
+      'localhost:8000',
+    ]
   : []
 );

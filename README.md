@@ -2,6 +2,8 @@
 
 Used for Snek, and maybe other games in the future.
 
+Base api url: https://dontownsendcreative.com/snek-leaderboard/
+
 ## Setup
 
 ```bash

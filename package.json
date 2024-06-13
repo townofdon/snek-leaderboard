@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "NODE_ENV=development npm run copy && tsc -w & NODE_ENV=development nodemon dist/app.js",
     "start": "NODE_ENV=production npm run copy && tsc -w & NODE_ENV=production nodemon dist/app.js",
-    "build": "tsc -b",
+    "build": "npm run copy && tsc -b",
     "copy": "rm -rf ./dist/views && mkdir -p ./dist/views && cp -r ./src/views ./dist",
     "lint": "eslint . --ext .ts",
     "test": "echo \"Error: no test specified\" && exit 1"

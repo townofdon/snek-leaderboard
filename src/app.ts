@@ -63,7 +63,8 @@ const setAllowAccessHeaders: RequestHandler = (req, res, next) => {
 }
 
 const setRestrictAccessHeaders: RequestHandler = (req, res, next) => {
-  const isAllowed = ALLOWED_DOMAINS.includes(req.headers.origin);
+  const origin = req.headers.origin || req.headers.host;
+  const isAllowed = ALLOWED_DOMAINS.includes(origin);
   if (isAllowed) {
     return setAllowAccessHeaders(req, res, next);
   } else {
@@ -72,7 +73,8 @@ const setRestrictAccessHeaders: RequestHandler = (req, res, next) => {
 }
 
 const openRoutes = Router().use(setAllowAccessHeaders);
-const closedRoutes = Router().use(setRestrictAccessHeaders);
+// const closedRoutes = Router().use(setRestrictAccessHeaders);
+const closedRoutes = Router();
 app.use(cookieParser());
 app.use(bodyParser.json());
 
@@ -81,7 +83,7 @@ if (IS_DEV) {
 }
 
 openRoutes.get('/leaderboard', getLeaderboard);
-openRoutes.get('/map/share/:mapData', getMapShare)
+openRoutes.get('/map/share/:mapData', getMapShare);
 
 closedRoutes.get('/csrf-token', (req, res) => {
   const csrfToken = generateToken(req, res);
@@ -90,10 +92,15 @@ closedRoutes.get('/csrf-token', (req, res) => {
 });
 
 closedRoutes.use(doubleCsrfProtection);
-closedRoutes.post('/leaderboard', addLeaderboardEntry);
+closedRoutes.post('/leaderboard', setRestrictAccessHeaders, addLeaderboardEntry);
 
 app.use(openRoutes);
 app.use(closedRoutes);
+
+app.use(function(req, res, next) {
+  res.status(404);
+  res.json({ error: 'Not found', url: req.url });
+});
 
 app.listen(port, () => {
   console.log(`Express is listening at http://localhost:${port}`);

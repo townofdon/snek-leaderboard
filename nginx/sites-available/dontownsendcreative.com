@@ -7,11 +7,19 @@ server {
 
 
         location /snek-leaderboard/ {
-                # trailing slash here used to filter out original URI path from target path
+                # trailing slash used below for proxy to filter out original URI path from target path
                 # see: https://serverfault.com/a/725433
                 proxy_pass http://127.0.0.1:8000/;
                 include proxy_params;
         }
+
+        # # apparently proxy_pass does not work for POST requests
+        # location ~* ^/snek-leaderboard/ {
+        #         rewrite ^/snek-leaderboard/(.*) /$1 break;
+        #         # note lack of trailing slash - see: https://serverfault.com/questions/649151/nginx-location-regex-doesnt-work-with-proxy-pass
+        #         proxy_pass http://127.0.0.1:8000;
+        #         include proxy_params;
+        # }
 
         location / {
                 try_files $uri $uri/ =404;
