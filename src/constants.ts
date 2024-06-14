@@ -6,7 +6,7 @@ export const SUPABASE_ANON_PUBLIC_KEY = process.env.SUPABASE_ANON_PUBLIC_KEY;
 export const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
 export const SUPABASE_AUTH_TOKEN = process.env.SUPABASE_AUTH_TOKEN;
 export const CSRF_HASH_SECRET = process.env.CSRF_HASH_SECRET;
-export const FACEBOOK_APP_ID = process.env.CSRF_HASH_SECRET;
+export const FACEBOOK_APP_ID = process.env.FACEBOOK_APP_ID;
 
 export const ALLOWED_DOMAINS = [
   'dontownsendcreative.com',
