@@ -1,10 +1,10 @@
 import { RequestHandler } from 'express';
 
+import { FACEBOOK_APP_ID, TABLE_NAME_MAPS } from '../../constants';
 import { withErrorHandler } from '../../utils/withErrorHandler';
 import { BadRequest, getPublicImageUrl } from '../../utils/storageUtils';
 import { sanitizeString } from '../../utils';
 import { supabase } from '../../supabase';
-import { TABLE_NAME_MAPS } from '../../constants';
 
 export const getMapShare: RequestHandler = withErrorHandler(async (req, res) => {
   if (!req.params.id) {
@@ -31,13 +31,15 @@ export const getMapShare: RequestHandler = withErrorHandler(async (req, res) => 
 
   const mapName = data[0].name;
   const encodedMapData = data[0].data;
+  const author = data[0].author;
   const options = {
-    ogTitle: `SNEK CUSTOM LEVEL - ${mapName}`,
-    ogDescription: 'Custom level built using SNEK EDITOR - click to play',
+    fbAppId: FACEBOOK_APP_ID,
+    ogTitle: `SNEK - ${mapName}`,
+    ogDescription: `Custom level made by ${author} - click to play!`,
     ogUrl: 'https://townofdon.github.io/snek-js/',
     ogImageUrl: getPublicImageUrl(id),
     mapName,
     encodedMapData,
-  }
+  };
   res.status(200).render('shareMap', options);
 })

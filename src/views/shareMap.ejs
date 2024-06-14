@@ -2,6 +2,9 @@
 <html>
   <head>
     <!-- social media embeds -->
+    <% if(fbAppId) { %>
+      <meta property="fb:app_id" content="<%= fbAppId %>" />
+    <% } %>
     <meta property="og:title" content="<%= ogTitle %>" />
     <meta property="og:site_name" content="SNEK" />
     <meta property="og:type" content="game" />
