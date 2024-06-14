@@ -13,6 +13,7 @@ import { CSRF_HASH_SECRET, IS_DEV, ALLOWED_DOMAINS } from './constants';
 import { addLeaderboardEntry } from './endpoints/leaderboard/addLeaderboardEntry';
 import { getLeaderboard } from './endpoints/leaderboard/getLeaderboard';
 import { getMapShare } from './endpoints/map/getMapShare';
+import { publishMap } from './endpoints/map/publishMap';
 
 const {
   generateToken, // Use this in your routes to provide a CSRF hash + token cookie and token.
@@ -43,7 +44,7 @@ app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
 
 // error handler
-app.use((req, res, next) => {
+app.use((_req, res, next) => {
   try {
     next();
   }
@@ -83,7 +84,7 @@ if (IS_DEV) {
 }
 
 openRoutes.get('/leaderboard', getLeaderboard);
-openRoutes.get('/map/share/:mapData', getMapShare);
+openRoutes.get('/map/:id/share', getMapShare);
 
 closedRoutes.get('/csrf-token', (req, res) => {
   const csrfToken = generateToken(req, res);
@@ -91,8 +92,11 @@ closedRoutes.get('/csrf-token', (req, res) => {
   res.json({ csrfToken });
 });
 
-closedRoutes.use(doubleCsrfProtection);
+if (!IS_DEV) {
+  closedRoutes.use(doubleCsrfProtection);
+}
 closedRoutes.post('/leaderboard', setRestrictAccessHeaders, addLeaderboardEntry);
+closedRoutes.post('/map', setRestrictAccessHeaders, publishMap);
 
 app.use(openRoutes);
 app.use(closedRoutes);
@@ -102,9 +106,29 @@ app.use((req, res) => {
   res.json({ error: 'Not found', url: req.url });
 });
 
-app.use((err, req, res, next) => {
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+app.use((err, _req, res, _next) => {
   console.error(err.stack);
-  res.status(500).send('Something went wrong');
+  const statusCode = Number(err.statusCode || 500);
+  res.status(statusCode)
+  switch (statusCode) {
+    case 400:
+      res.send('Bad Request');
+      break;
+    case 401:
+      res.send('Unauthorized');
+      break;
+    case 403:
+      res.send('Forbidden');
+      break;
+    case 404:
+      res.send('Not found');
+      break;
+    case 500:
+    default:
+      res.send('Something went wrong');
+      break;
+  }
 })
 
 app.listen(port, () => {

@@ -1,9 +1,10 @@
 import { RequestHandler } from 'express';
 import { supabase } from '../../supabase';
+import { TABLE_NAME_LEADERBOARD } from '../../constants';
 
 export const getLeaderboard: RequestHandler = async (req, res) => {
     const { data, error } = await supabase
-    .from('snek-leaderboard')
+    .from(TABLE_NAME_LEADERBOARD)
     .select('*')
     .order('score', { ascending: false })
     .limit(10);

@@ -81,6 +81,17 @@ Social developer links
 - https://dnschecker.org/open-graph-preview-generate-metatags.php
 
 
-## Nginx debug
+## Generate Database Types
+
+- `https://supabase.com/dashboard/project/<project_id>/api?page=tables-intro`
+
+
+## Debug
+
+Nginx
 
 - Nginx location match tester: https://nginx.viraptor.info/
+
+PM2
+
+- To check pm2 logs run `pm2 logs`
