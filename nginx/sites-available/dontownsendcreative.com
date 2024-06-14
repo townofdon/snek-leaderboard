@@ -5,10 +5,10 @@ server {
 
         server_name dontownsendcreative.com www.dontownsendcreative.com;
 
+        # trailing slash used for proxy_pass below to filter out original URI path from target path
+        # see: https://serverfault.com/a/725433
 
         location /snek-leaderboard/ {
-                # trailing slash used below for proxy to filter out original URI path from target path
-                # see: https://serverfault.com/a/725433
                 proxy_pass http://127.0.0.1:8000/;
                 include proxy_params;
         }
@@ -59,4 +59,4 @@ server {
 
 
 }
-root@docker-s-1vcpu-1gb-nyc1-01:/etc/nginx/sites-available# 
+

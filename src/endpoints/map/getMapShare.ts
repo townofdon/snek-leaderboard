@@ -1,7 +1,9 @@
 import { RequestHandler } from 'express';
+
+import { withErrorHandler } from '../../utils/withErrorHandler';
 // import { supabase } from '../../supabase';
 
-export const getMapShare: RequestHandler = async (req, res) => {
+export const getMapShare: RequestHandler = withErrorHandler(async (req, res) => {
   // get imageUrl, map name from supabase
 
   const encodedMapData = decodeURI(req.params.mapData);
@@ -14,5 +16,5 @@ export const getMapShare: RequestHandler = async (req, res) => {
     mapName: 'Untitled Map',
     encodedMapData,
   }
-  return res.render('shareMap', options);
-}
+  res.status(200).render('shareMap', options);
+})

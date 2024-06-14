@@ -79,3 +79,8 @@ Social developer links
 - https://developers.facebook.com/docs/sharing/webmasters/images/
 - https://dev.to/shadowfaxrodeo/i-tested-every-link-preview-meta-tag-on-every-social-media-and-messaging-app-so-you-dont-have-to-it-was-super-boring-39c0
 - https://dnschecker.org/open-graph-preview-generate-metatags.php
+
+
+## Nginx debug
+
+- Nginx location match tester: https://nginx.viraptor.info/

@@ -50,7 +50,7 @@ app.use((req, res, next) => {
   catch (err) {
     res.status(500).send();
   }
-})
+});
 
 const setAllowAccessHeaders: RequestHandler = (req, res, next) => {
   if (req.headers.origin) {
@@ -60,7 +60,7 @@ const setAllowAccessHeaders: RequestHandler = (req, res, next) => {
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type, x-csrf-token');
   }
   next();
-}
+};
 
 const setRestrictAccessHeaders: RequestHandler = (req, res, next) => {
   const origin = req.headers.origin || req.headers.host;
@@ -70,7 +70,7 @@ const setRestrictAccessHeaders: RequestHandler = (req, res, next) => {
   } else {
     res.status(403).send();
   }
-}
+};
 
 const openRoutes = Router().use(setAllowAccessHeaders);
 // const closedRoutes = Router().use(setRestrictAccessHeaders);
@@ -97,10 +97,15 @@ closedRoutes.post('/leaderboard', setRestrictAccessHeaders, addLeaderboardEntry)
 app.use(openRoutes);
 app.use(closedRoutes);
 
-app.use(function(req, res, next) {
+app.use((req, res) => {
   res.status(404);
   res.json({ error: 'Not found', url: req.url });
 });
+
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).send('Something went wrong');
+})
 
 app.listen(port, () => {
   console.log(`Express is listening at http://localhost:${port}`);
