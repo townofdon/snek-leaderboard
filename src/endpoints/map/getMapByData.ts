@@ -10,15 +10,18 @@ import { Tables } from "../../types/supabaseTypes";
 export const getMapByData: RequestHandler = withErrorHandler(async (req, res) => {
   let encodedMapData = '';
   try {
-    encodedMapData = encodeURIComponent(String(req.query.data || ''));
+    encodedMapData = encodeURIComponent((String(req.query.data || '')));
     if (!encodedMapData) {
       return BadRequest(res, "data param required");
     }
     if (!validateEncodedMapData(encodedMapData)) {
-      return BadRequest(res, "data param is invalid");
+      console.log('data param is invalid');
+      encodedMapData = '-';
     }
   } catch (err) {
-    return BadRequest(res, "data param is invalid");
+    console.log(err);
+    console.log('data param is invalid');
+    encodedMapData = '-';
   }
 
   const { data, error } = await supabase
@@ -28,36 +31,21 @@ export const getMapByData: RequestHandler = withErrorHandler(async (req, res) =>
     .range(0, 0);
 
   if (error) {
+    console.log('Unable to fetch map');
     console.log(`${error.code}: ${error.message}`);
     console.log(error.details);
-    res.status(500).json({ error: { message: 'Unable to fetch map' } });
-    return;
-  }
-  if (!data?.length) {
-    res.status(404).json({ error: { message: `Unable to find map with matching data` } });
-    return;
   }
 
-  const map = data[0];
+  const map = data?.[0] || null;
   let next: Tables<'snek-maps'> | null = null;
-  const nextMapRes = await supabase
-    .from(TABLE_NAME_MAPS)
-    .select('*')
-    .order('created_at', { ascending: false })
-    .lt('created_at', map.created_at)
-    .range(0, 0);
+  const nextMap = await fetchNextMap(map);
 
-  const hasNextMap = !!nextMapRes.data?.length;
-  if (hasNextMap) {
-    next = nextMapRes.data[0];
+  if (nextMap) {
+    next = nextMap;
   } else {
-    const firstMapRes = await supabase
-      .from(TABLE_NAME_MAPS)
-      .select('*')
-      .order('created_at', { ascending: false })
-      .range(0, 0);
-    if (firstMapRes.data?.length) {
-      next = firstMapRes.data[0];
+    const firstMap = await fetchFirstMap();
+    if (firstMap) {
+      next = firstMap;
     }
   }
 
@@ -65,5 +53,31 @@ export const getMapByData: RequestHandler = withErrorHandler(async (req, res) =>
     map,
     next,
   }
-  res.status(200).json(body).send();
+  res.status(200).json(body);
 });
+
+const fetchNextMap = async (map: Tables<'snek-maps'> | null) => {
+  if (!map) return null;
+  const nextMapRes = await supabase
+    .from(TABLE_NAME_MAPS)
+    .select('*')
+    .order('created_at', { ascending: false })
+    .lt('created_at', map.created_at)
+    .range(0, 0);
+  if (nextMapRes.data?.length) {
+    return nextMapRes.data[0];
+  }
+  return null;
+}
+
+const fetchFirstMap = async () => {
+  const firstMapRes = await supabase
+    .from(TABLE_NAME_MAPS)
+    .select('*')
+    .order('created_at', { ascending: false })
+    .range(0, 0);
+  if (firstMapRes.data?.length) {
+    return firstMapRes.data[0];
+  }
+  return null;
+}

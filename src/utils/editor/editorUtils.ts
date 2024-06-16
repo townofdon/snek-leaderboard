@@ -3,10 +3,6 @@ import { Buffer } from 'buffer'
 
 import JSONCrush from './JSONCrush/JSONCrush';
 
-export function encode(layout: string): string {
-  return encodeURIComponent(Buffer.from(JSONCrush.crush(layout)).toString('base64'));
-}
-
 export function decode(encoded: string): string {
   return JSONCrush.uncrush(Buffer.from(decodeURIComponent(decodeURI(encoded)), 'base64').toString())
 }
@@ -42,7 +38,6 @@ export function validateEncodedMapData(encoded: string): boolean {
     snakeStartSize,
     growthMod,
     extraHurtGraceTime,
-    globalLight,
   ];
   for (let i = 0; i < requiredParts.length; i++) {
     const valid = !!requiredParts[i]?.length;

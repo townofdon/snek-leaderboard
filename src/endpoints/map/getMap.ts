@@ -33,5 +33,5 @@ export const getMap: RequestHandler = withErrorHandler(async (req, res) => {
     return;
   }
 
-  res.status(200).json(data[0]).send();
+  res.status(200).json(data[0]);
 });

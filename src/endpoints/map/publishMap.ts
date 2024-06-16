@@ -101,5 +101,5 @@ export const publishMap: RequestHandler = withErrorHandler(async (req, res) => {
     },
   }
 
-  res.status(200).json(body).send();
+  res.status(200).json(body);
 });

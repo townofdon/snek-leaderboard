@@ -48,5 +48,5 @@ export const listMap: RequestHandler = withErrorHandler(async (req, res) => {
     data,
     meta,
   }
-  res.status(200).json(body).send();
+  res.status(200).json(body);
 });
