@@ -7,6 +7,7 @@ import { withErrorHandler } from "../../utils/withErrorHandler";
 import { sanitizeString } from "../../utils";
 import { BadRequest, getImagePath, getPublicImageUrl } from "../../utils/storageUtils";
 import { supabase } from "../../supabase";
+import { validateEncodedMapData } from "../../utils/editor/editorUtils";
 
 export const publishMap: RequestHandler = withErrorHandler(async (req, res) => {
   if (req.body.mapId && !validateUuid(req.body.mapId)) {
@@ -17,6 +18,18 @@ export const publishMap: RequestHandler = withErrorHandler(async (req, res) => {
   }
   if (!req.body.mapData) {
     return BadRequest(res, 'mapData is a required field');
+  }
+
+  try {
+    const encodedMapData = String(req.body.mapData || '');
+    if (!encodedMapData) {
+      return BadRequest(res, "mapData is a required field");
+    }
+    if (!validateEncodedMapData(encodedMapData)) {
+      return BadRequest(res, "mapData is invalid");
+    }
+  } catch (err) {
+    return BadRequest(res, "mapData is invalid");
   }
 
   const isUpdate = !!req.body.mapId;

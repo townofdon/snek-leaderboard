@@ -16,6 +16,7 @@ import { getMapShare } from './endpoints/map/getMapShare';
 import { publishMap } from './endpoints/map/publishMap';
 import { getMap } from './endpoints/map/getMap';
 import { listMap } from './endpoints/map/listMap';
+import { getMapByData } from './endpoints/map/getMapByData';
 
 const {
   generateToken, // Use this in your routes to provide a CSRF hash + token cookie and token.
@@ -86,6 +87,7 @@ if (IS_DEV) {
 }
 
 openRoutes.get('/leaderboard', getLeaderboard);
+openRoutes.get('/map/lookup', getMapByData);
 openRoutes.get('/map/:id/share', getMapShare);
 openRoutes.get('/map/:id', getMap);
 openRoutes.get('/map', listMap);

@@ -19,7 +19,8 @@ export const getMap: RequestHandler = withErrorHandler(async (req, res) => {
   const { data, error } = await supabase
     .from(TABLE_NAME_MAPS)
     .select('*')
-    .eq('id', id);
+    .eq('id', id)
+    .range(0, 0);
 
   if (error) {
     console.log(`${error.code}: ${error.message}`);
