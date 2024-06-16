@@ -1,10 +1,11 @@
-import { Request, RequestHandler } from "express";
+import { RequestHandler } from "express";
 
 import { TABLE_NAME_MAPS } from "../../constants";
 import { withErrorHandler } from "../../utils/withErrorHandler";
 import { BadRequest } from "../../utils/storageUtils";
 import { supabase } from "../../supabase";
 import { validateEncodedMapData } from "../../utils/editor/editorUtils";
+import { Tables } from "../../types/supabaseTypes";
 
 export const getMapByData: RequestHandler = withErrorHandler(async (req, res) => {
   let encodedMapData = '';
@@ -37,5 +38,32 @@ export const getMapByData: RequestHandler = withErrorHandler(async (req, res) =>
     return;
   }
 
-  res.status(200).json(data[0]).send();
+  const map = data[0];
+  let next: Tables<'snek-maps'> | null = null;
+  const nextMapRes = await supabase
+    .from(TABLE_NAME_MAPS)
+    .select('*')
+    .order('created_at', { ascending: false })
+    .lt('created_at', map.created_at)
+    .range(0, 0);
+
+  const hasNextMap = !!nextMapRes.data?.length;
+  if (hasNextMap) {
+    next = nextMapRes.data[0];
+  } else {
+    const firstMapRes = await supabase
+      .from(TABLE_NAME_MAPS)
+      .select('*')
+      .order('created_at', { ascending: false })
+      .range(0, 0);
+    if (firstMapRes.data?.length) {
+      next = firstMapRes.data[0];
+    }
+  }
+
+  const body = {
+    map,
+    next,
+  }
+  res.status(200).json(body).send();
 });
