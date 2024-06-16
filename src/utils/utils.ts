@@ -1,6 +1,6 @@
 
 export function sanitizeString(str: string){
-  str = String(str).replace(/[^a-z0-9áéíóúñü .,_-]/gim,"");
+  str = String(str).replace(/[^a-z0-9àáâäæãåāèéêëēėęîïíīįìôöòóœøōõûüùúūñń .,_-]/gim,"");
   return str.trim();
 }
 
