@@ -14,6 +14,7 @@ import { addLeaderboardEntry } from './endpoints/leaderboard/addLeaderboardEntry
 import { getLeaderboard } from './endpoints/leaderboard/getLeaderboard';
 import { getMapShare } from './endpoints/map/getMapShare';
 import { publishMap } from './endpoints/map/publishMap';
+import { getMap } from './endpoints/map/getMap';
 
 const {
   generateToken, // Use this in your routes to provide a CSRF hash + token cookie and token.
@@ -85,6 +86,7 @@ if (IS_DEV) {
 
 openRoutes.get('/leaderboard', getLeaderboard);
 openRoutes.get('/map/:id/share', getMapShare);
+openRoutes.get('/map/:id', getMap);
 
 closedRoutes.get('/csrf-token', (req, res) => {
   const csrfToken = generateToken(req, res);

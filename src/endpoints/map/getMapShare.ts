@@ -1,4 +1,5 @@
 import { RequestHandler } from 'express';
+import { validate as validateUuid } from 'uuid';
 
 import { FACEBOOK_APP_ID, TABLE_NAME_MAPS } from '../../constants';
 import { withErrorHandler } from '../../utils/withErrorHandler';
@@ -9,6 +10,9 @@ import { supabase } from '../../supabase';
 export const getMapShare: RequestHandler = withErrorHandler(async (req, res) => {
   if (!req.params.id) {
     return BadRequest(res, 'id param required');
+  }
+  if (!validateUuid(req.params.id)) {
+    return BadRequest(res, "id is not a valid uuid");
   }
 
   const id = sanitizeString(String(req.params.id));
