@@ -78,8 +78,11 @@ For social sharing embeds, [ejs](https://www.npmjs.com/package/ejs) is used to r
 Social developer links
 - https://developers.facebook.com/docs/sharing/webmasters/images/
 - https://dev.to/shadowfaxrodeo/i-tested-every-link-preview-meta-tag-on-every-social-media-and-messaging-app-so-you-dont-have-to-it-was-super-boring-39c0
-- https://dnschecker.org/open-graph-preview-generate-metatags.php
 
+Opengraph debuggers
+- https://dnschecker.org/open-graph-preview-generate-metatags.php
+- https://developers.facebook.com/tools/debug/?q=https%3A%2F%2Fdontownsendcreative.com%2Fsnek-leaderboard%2Fmap%2Fab74a70a-cb2d-44d0-9504-d9d166740684%2Fshare
+- https://www.bannerbear.com/tools/twitter-card-preview-tool/#image_result
 
 ## Generate Database Types
 

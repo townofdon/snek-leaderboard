@@ -1,4 +1,5 @@
 import { RequestHandler } from "express";
+import { validate as validateUuid } from 'uuid';
 
 import { STORAGE_BUCKET_MAPS, SUPABASE_PROJECT_ID, TABLE_NAME_MAPS } from "../../constants";
 import { TablesInsert } from "../../types/supabaseTypes";
@@ -8,6 +9,9 @@ import { BadRequest, getImagePath, getPublicImageUrl } from "../../utils/storage
 import { supabase } from "../../supabase";
 
 export const publishMap: RequestHandler = withErrorHandler(async (req, res) => {
+  if (req.body.mapId && !validateUuid(req.body.mapId)) {
+    return BadRequest(res, 'mapId is not a valid uuid');
+  }
   if (!req.body.name) {
     return BadRequest(res, 'name is a required field');
   }
@@ -15,26 +19,32 @@ export const publishMap: RequestHandler = withErrorHandler(async (req, res) => {
     return BadRequest(res, 'mapData is a required field');
   }
 
+  const isUpdate = !!req.body.mapId;
+
   const newRecord: TablesInsert<"snek-maps"> = {
     name: sanitizeString(String(req.body.name)),
     author: sanitizeString(String(req.body.author)) || 'Anonymous',
     data: decodeURI(req.body.mapData),
   };
 
+  if (isUpdate) {
+    newRecord.id = req.body.mapId;
+  }
+
   const insertRes = await supabase
     .from(TABLE_NAME_MAPS)
-    .insert(newRecord)
+    .upsert(newRecord)
     .select();
 
   if (insertRes.error) {
     console.log(`${insertRes.error.code}: ${insertRes.error.message}`);
     console.log(insertRes.error.details);
-    res.status(500).json({ error: { message: 'Unable to save new map' } });
+    res.status(500).json({ error: { message: isUpdate ? 'Unable to update map' : 'Unable to save new map' } });
     return;
   }
   if (!insertRes.data?.length) {
     console.log('insertRes.data was empty');
-    res.status(500).json({ error: { message: 'Unable to save new map' } });
+    res.status(500).json({ error: { message: isUpdate ? 'Unable to update map' : 'Unable to save new map' } });
     return;
   }
 
@@ -43,6 +53,10 @@ export const publishMap: RequestHandler = withErrorHandler(async (req, res) => {
   const author = insertRes.data[0].author;
   const imagePath = getImagePath(id);
   const imageUrl = getPublicImageUrl(id);
+
+  if (isUpdate) {
+    await supabase.storage.from(STORAGE_BUCKET_MAPS).remove([imagePath]);
+  }
 
   const upload = await supabase.storage
     .from(STORAGE_BUCKET_MAPS)
