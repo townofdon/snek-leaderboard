@@ -3,7 +3,7 @@ import { validate as validateUuid } from 'uuid';
 
 import { TABLE_NAME_MAPS } from "../../constants";
 import { withErrorHandler } from "../../utils/withErrorHandler";
-import { BadRequest, getPublicImageUrl, mapWithImageUrl } from "../../utils/storageUtils";
+import { BadRequest, mapWithImageUrl } from "../../utils/storageUtils";
 import { supabase } from "../../supabase";
 
 export const getMap: RequestHandler = withErrorHandler(async (req, res) => {

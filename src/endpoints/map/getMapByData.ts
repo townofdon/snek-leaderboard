@@ -2,7 +2,7 @@ import { RequestHandler } from "express";
 
 import { TABLE_NAME_MAPS } from "../../constants";
 import { withErrorHandler } from "../../utils/withErrorHandler";
-import { BadRequest, getPublicImageUrl, mapWithImageUrl } from "../../utils/storageUtils";
+import { BadRequest, mapWithImageUrl } from "../../utils/storageUtils";
 import { supabase } from "../../supabase";
 import { validateEncodedMapData } from "../../utils/editor/editorUtils";
 import { Tables } from "../../types/supabaseTypes";
