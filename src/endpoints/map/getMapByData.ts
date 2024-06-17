@@ -2,7 +2,7 @@ import { RequestHandler } from "express";
 
 import { TABLE_NAME_MAPS } from "../../constants";
 import { withErrorHandler } from "../../utils/withErrorHandler";
-import { BadRequest } from "../../utils/storageUtils";
+import { BadRequest, getPublicImageUrl, mapWithImageUrl } from "../../utils/storageUtils";
 import { supabase } from "../../supabase";
 import { validateEncodedMapData } from "../../utils/editor/editorUtils";
 import { Tables } from "../../types/supabaseTypes";
@@ -50,7 +50,7 @@ export const getMapByData: RequestHandler = withErrorHandler(async (req, res) =>
   }
 
   const body = {
-    map,
+    map: mapWithImageUrl(map),
     next,
   }
   res.status(200).json(body);

@@ -4,6 +4,7 @@ import { TABLE_NAME_MAPS } from "../../constants";
 import { withErrorHandler } from "../../utils/withErrorHandler";
 import { sanitizeString } from "../../utils";
 import { supabase } from "../../supabase";
+import { mapWithImageUrl } from "../../utils/storageUtils";
 
 export const listMap: RequestHandler = withErrorHandler(async (req, res) => {
   const limit = parseInt(String(req.query.limit), 10) || 10;
@@ -45,7 +46,7 @@ export const listMap: RequestHandler = withErrorHandler(async (req, res) => {
     numResults: data.length,
   };
   const body = {
-    data,
+    data: data.map(map => mapWithImageUrl(map)),
     meta,
   }
   res.status(200).json(body);
