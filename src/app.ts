@@ -17,6 +17,7 @@ import { publishMap } from './endpoints/map/publishMap';
 import { getMap } from './endpoints/map/getMap';
 import { listMap } from './endpoints/map/listMap';
 import { getMapByData } from './endpoints/map/getMapByData';
+import { recordEvent } from './endpoints/snekalytics/recordEvent';
 
 const {
   generateToken, // Use this in your routes to provide a CSRF hash + token cookie and token.
@@ -91,6 +92,7 @@ openRoutes.get('/map/lookup', getMapByData);
 openRoutes.get('/map/:id/share', getMapShare);
 openRoutes.get('/map/:id', getMap);
 openRoutes.get('/map', listMap);
+openRoutes.post('/snekalytics', recordEvent);
 
 closedRoutes.get('/csrf-token', (req, res) => {
   const csrfToken = generateToken(req, res);

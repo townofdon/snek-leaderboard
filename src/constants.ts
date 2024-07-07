@@ -26,4 +26,5 @@ export const ALLOWED_DOMAINS = [
 
 export const TABLE_NAME_LEADERBOARD = 'snek-leaderboard';
 export const TABLE_NAME_MAPS = 'snek-maps';
+export const TABLE_NAME_SNEKALYTICS = 'snekalytics';
 export const STORAGE_BUCKET_MAPS = 'snek-map-images';

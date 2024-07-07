@@ -4,6 +4,11 @@ export function sanitizeString(str: string){
   return str.trim();
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export const toBoolDB = (param: any) => {
+  return String(param).toLowerCase() === 'true' || String(param) === '1';
+}
+
 export function isNil(item: unknown): boolean {
   return item === undefined || item === null;
 }

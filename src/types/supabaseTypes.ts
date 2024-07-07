@@ -6,7 +6,7 @@ export type Json =
   | { [key: string]: Json | undefined }
   | Json[]
 
-export interface Database {
+export type Database = {
   public: {
     Tables: {
       "snek-leaderboard": {
@@ -51,6 +51,51 @@ export interface Database {
           data?: string
           id?: string
           name?: string
+        }
+        Relationships: []
+      }
+      snekalytics: {
+        Row: {
+          created_at: string
+          difficulty: string
+          event_type: string
+          id: string
+          is_cobra: boolean
+          is_dev: boolean
+          level_name: string
+          level_progress: number
+          level_time_progress: number
+          origin: string
+          score: number
+          session_id: string
+        }
+        Insert: {
+          created_at?: string
+          difficulty?: string
+          event_type?: string
+          id?: string
+          is_cobra?: boolean
+          is_dev?: boolean
+          level_name?: string
+          level_progress?: number
+          level_time_progress?: number
+          origin?: string
+          score?: number
+          session_id?: string
+        }
+        Update: {
+          created_at?: string
+          difficulty?: string
+          event_type?: string
+          id?: string
+          is_cobra?: boolean
+          is_dev?: boolean
+          level_name?: string
+          level_progress?: number
+          level_time_progress?: number
+          origin?: string
+          score?: number
+          session_id?: string
         }
         Relationships: []
       }
