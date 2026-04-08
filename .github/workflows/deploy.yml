@@ -28,12 +28,13 @@ jobs:
 
       - name: Run Remote Command
         run: |
-          ssh -i ~/.ssh/id_ed25519 ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "ls -la"
-          cd ~/snek-leaderboard
-          git pull origin main
-          npm install
-          npm run build
-          pm2 restart app
+          ssh -i ~/.ssh/id_ed25519 ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} bash -s << 'EOF'
+            cd ~/snek-leaderboard
+            git pull origin main
+            npm install
+            npm run build
+            pm2 restart app
+          EOF
 
       # - name: Deploy via SSH
       #   uses: [appleboy/ssh-action@v1.0.3](https://github.com/appleboy/ssh-action)
