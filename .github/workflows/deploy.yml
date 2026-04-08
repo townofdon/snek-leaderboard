@@ -1,4 +1,4 @@
-name: Manual SSH Deploy
+name: Deploy
 
 # SECRETS
 # - SSH_HOST - host of ssh server to connect to
