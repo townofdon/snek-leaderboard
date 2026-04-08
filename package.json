@@ -1,6 +1,6 @@
 {
   "name": "snek-leaderboard",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "leaderboard server for snek game",
   "main": "dist/app.js",
   "scripts": {
