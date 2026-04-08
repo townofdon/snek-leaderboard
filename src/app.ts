@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-import express, { RequestHandler, Router } from 'express';
+import express, { ErrorRequestHandler, RequestHandler, Router } from 'express';
 import bodyParser from 'body-parser';
 import cookieParser from 'cookie-parser';
 import morgan from 'morgan';
@@ -68,7 +68,7 @@ const setAllowAccessHeaders: RequestHandler = (req, res, next) => {
 };
 
 const setRestrictAccessHeaders: RequestHandler = (req, res, next) => {
-  const origin = req.headers.origin || req.headers.host;
+  const origin = req.headers.origin || req.headers.host || '';
   const isAllowed = ALLOWED_DOMAINS.includes(origin);
   if (isAllowed) {
     return setAllowAccessHeaders(req, res, next);
@@ -115,7 +115,7 @@ app.use((req, res) => {
 });
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-app.use((err, _req, res, _next) => {
+const errorHandler: ErrorRequestHandler = (err, _req, res, _next) => {
   console.error(err.stack);
   const statusCode = Number(err.statusCode || 500);
   res.status(statusCode)
@@ -137,7 +137,8 @@ app.use((err, _req, res, _next) => {
       res.send('Something went wrong');
       break;
   }
-})
+}
+app.use(errorHandler);
 
 app.listen(port, () => {
   console.log(`Express is listening at http://localhost:${port}`);

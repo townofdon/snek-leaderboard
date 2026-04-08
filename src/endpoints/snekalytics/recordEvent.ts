@@ -4,11 +4,31 @@ import { validate as validateUuid } from 'uuid';
 import { TABLE_NAME_SNEKALYTICS } from "../../constants";
 import { TablesInsert } from "../../types/supabaseTypes";
 import { withErrorHandler } from "../../utils/withErrorHandler";
-import { isEmpty, sanitizeString, toBoolDB } from "../../utils";
+import { sanitizeString, toBoolDB } from "../../utils";
 import { BadRequest, } from "../../utils/storageUtils";
 import { supabase } from "../../supabase";
+import { bodyValidator, Validate } from "../../utils/validate";
 
 export const recordEvent: RequestHandler = withErrorHandler(async (req, res) => {
+  const errors = bodyValidator([
+    Validate.Body.uuid('sessionId'),
+    Validate.Body.uuid('playthroughId'),
+    Validate.Body.present('difficulty'),
+    Validate.Body.present('eventType'),
+    Validate.Body.present('isCobra'),
+    Validate.Body.present('isDev'),
+    Validate.Body.present('levelName'),
+    Validate.Body.present('levelProgress'),
+    Validate.Body.present('levelTimeProgress'),
+    Validate.Body.present('origin'),
+    Validate.Body.present('score'),
+    Validate.Body.present('version'),
+    Validate.Body.present('commit'),
+  ], req);
+  if (errors.length) {
+    return BadRequest(res, 'validation failed', errors);
+  }
+
   const rowInsert: TablesInsert<'snekalytics'> = {
     difficulty: sanitizeString(String(req.body.difficulty || '')),
     event_type: sanitizeString(String(req.body.eventType || '')),
@@ -20,40 +40,16 @@ export const recordEvent: RequestHandler = withErrorHandler(async (req, res) => 
     origin: sanitizeString(String(req.body.origin)),
     score: parseInt(req.body.score, 10),
     session_id: String(req.body.sessionId || ''),
+    playthrough_id: String(req.body.playthroughId || ''),
+    version: sanitizeString(String(req.body.version || '')),
+    commit: sanitizeString(String(req.body.commit || '')),
   }
 
-  if (isEmpty(rowInsert.session_id)) {
-    return BadRequest(res, `body.sessionId is a required field`);
+  if (!validateUuid(rowInsert.playthrough_id || '')) {
+    return BadRequest(res, `body.playthroughId is not valid: '${req.body.playthroughId}'`);
   }
-  if (!validateUuid(rowInsert.session_id)) {
-    return BadRequest(res, `body.sessionId is not valid: '${req.body.sessionId}'`);
-  }
-  if (isEmpty(rowInsert.difficulty)) {
-    return BadRequest(res, `body.difficulty is a required field`);
-  }
-  if (isEmpty(rowInsert.event_type)) {
-    return BadRequest(res, `body.eventType is a required field`);
-  }
-  if (isEmpty(rowInsert.is_cobra)) {
-    return BadRequest(res, `body.isCobra is a required field`);
-  }
-  if (isEmpty(rowInsert.is_dev)) {
-    return BadRequest(res, `body.isDev is a required field`);
-  }
-  if (isEmpty(rowInsert.level_name)) {
-    return BadRequest(res, `body.levelName is a required field`);
-  }
-  if (isEmpty(rowInsert.level_progress)) {
-    return BadRequest(res, `body.levelProgress is a required field`);
-  }
-  if (isEmpty(rowInsert.level_time_progress)) {
-    return BadRequest(res, `body.levelTimeProgress is a required field`);
-  }
-  if (isEmpty(rowInsert.origin)) {
-    return BadRequest(res, `body.origin is a required field`);
-  }
-  if (isEmpty(rowInsert.score)) {
-    return BadRequest(res, `body.score is a required field`);
+  if (!validateUuid(rowInsert.playthrough_id || '')) {
+    return BadRequest(res, `body.playthroughId is not valid: '${req.body.playthroughId}'`);
   }
 
   const insertRes = await supabase
@@ -69,7 +65,7 @@ export const recordEvent: RequestHandler = withErrorHandler(async (req, res) => 
   }
   if (!insertRes.data?.length) {
     console.log('insertRes.data was empty');
-    res.status(500).json({ error: { message: 'Unable to record event' } });
+    res.status(500).json({ error: { message: 'Unable to record event (received empty)' } });
     return;
   }
 

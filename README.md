@@ -28,7 +28,7 @@ Note that pm2 must be installed globally on target system.
 
 ```bash
 # make sure you build first
-npm run build
+git pull && npm run build
 # start server in the background
 pm2 start dist/app.js
 ```

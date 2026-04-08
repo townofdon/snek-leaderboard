@@ -5,7 +5,7 @@ export function sanitizeString(str: string){
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const toBoolDB = (param: any) => {
+export const toBoolDB = (param: any): boolean => {
   return String(param).toLowerCase() === 'true' || String(param) === '1';
 }
 

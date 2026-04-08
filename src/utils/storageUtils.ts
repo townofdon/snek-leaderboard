@@ -10,8 +10,8 @@ export const getPublicImageUrl = (mapId: string, extension = 'png') => {
   return `https://${SUPABASE_PROJECT_ID}.supabase.co/storage/v1/object/public/${STORAGE_BUCKET_MAPS}/${getImagePath(mapId, extension)}`
 }
 
-export const BadRequest = (res: Response, message: string) => {
-  res.status(400).json({ error: { message } });
+export const BadRequest = (res: Response, message: string, details?: string[]) => {
+  res.status(400).json({ error: { message, details } });
 }
 
 export function mapWithImageUrl(map: Tables<'snek-maps'> | null) {
