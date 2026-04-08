@@ -18,7 +18,23 @@ npm start
 
 ## Deploy
 
-TBD, for now a manual process of scp to digital ocean
+Push up a new version tag to initiate a deployment.
+
+```bash
+npm version <patch|minor|major>
+git push
+```
+
+## Manual Deploy
+
+- ssh into digital ocean server
+- navigate to snek-leaderboard
+- run:
+
+    ```bash
+    git pull && npm run build
+    pm2 restart app
+    ```
 
 ## Server
 

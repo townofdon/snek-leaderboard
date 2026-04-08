@@ -1,0 +1,49 @@
+name: Manual SSH Deploy
+
+# SECRETS
+# - SSH_HOST - host of ssh server to connect to
+# - SSH_USER - ssh user
+# - SSH_PRIVATE_KEY - ssh private key (you need to have set up ssh access on digital ocean prior to this)
+
+on:
+  workflow_dispatch: # Enables manual trigger
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: [actions/checkout@v4](https://github.com)
+
+      - name: Setup SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan -H ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
+
+      - name: Run Remote Command
+        run: |
+          ssh -i ~/.ssh/id_ed25519 ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "ls -la"
+          cd ~/snek-leaderboard
+          git pull origin main
+          npm install
+          npm run build
+          pm2 restart app
+
+      # - name: Deploy via SSH
+      #   uses: [appleboy/ssh-action@v1.0.3](https://github.com/appleboy/ssh-action)
+      #   with:
+      #     host: ${{ secrets.SSH_HOST }}
+      #     username: ${{ secrets.SSH_USER }}
+      #     key: ${{ secrets.SSH_PRIVATE_KEY }}
+      #     port: 22
+      #     script: |
+      #       cd ~/snek-leaderboard
+      #       git pull origin main
+      #       npm install
+      #       npm run build
+      #       pm2 restart app
