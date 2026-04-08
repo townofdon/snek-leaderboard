@@ -30,10 +30,7 @@ jobs:
         run: |
           ssh -i ~/.ssh/id_ed25519 ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} bash -s << 'EOF'
             cd ~/snek-leaderboard
-            git pull origin main
-            npm install
-            npm run build
-            pm2 restart app
+            ./deploy.sh
           EOF
 
       # - name: Deploy via SSH
