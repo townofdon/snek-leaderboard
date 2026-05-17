@@ -22,7 +22,7 @@ Push up a new version tag to initiate a deployment.
 
 ```bash
 npm version <patch|minor|major>
-git push
+git push --tags
 ```
 
 ## Manual Deploy
@@ -78,9 +78,10 @@ crontab -l
 crontab -e
 ```
 
-```
+```bash
 # https://crontab.guru/#5_0-23_*_*_*
-5 0-23 * * * /root/snek-leaderboard/ping-leaderboard.sh
+# 5 0-23 * * * /root/snek-leaderboard/ping-leaderboard.sh
+5 0-23 * * * /home/snek/snek-leaderboard/ping-leaderboard.sh
 ```
 
 
